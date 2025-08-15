@@ -6,7 +6,7 @@ import { Badge } from '../components/ui/badge';
 import { Input } from '../components/ui/input';
 import { Textarea } from '../components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
-import { contactInfo } from '../mock';
+import { apiService } from '../services/api';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -16,7 +16,9 @@ const Contact = () => {
     inquiryType: '',
     message: ''
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState(null);
 
   const inquiryTypes = [
     'General Inquiry',
@@ -27,6 +29,13 @@ const Contact = () => {
     'Media & Press'
   ];
 
+  const contactInfo = {
+    address: "1234 Research Boulevard, Suite 500, Washington, DC 20001",
+    phone: "+1 (555) 123-4567",
+    email: "hello@evidentia.com",
+    hours: "Monday - Friday: 9:00 AM - 6:00 PM EST"
+  };
+
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
       ...prev,
@@ -34,22 +43,50 @@ const Contact = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Mock form submission
-    alert(`Contact form submitted successfully!\nName: ${formData.name}\nEmail: ${formData.email}\nInquiry Type: ${formData.inquiryType}\nMessage: ${formData.message}`);
-    setIsSubmitted(true);
-    // Reset form after 3 seconds
-    setTimeout(() => {
-      setIsSubmitted(false);
-      setFormData({
-        name: '',
-        email: '',
-        organization: '',
-        inquiryType: '',
-        message: ''
-      });
-    }, 3000);
+    setIsSubmitting(true);
+    setSubmitError(null);
+
+    try {
+      const response = await apiService.submitContactForm(formData);
+      
+      if (response.success) {
+        setIsSubmitted(true);
+        // Reset form after 5 seconds
+        setTimeout(() => {
+          setIsSubmitted(false);
+          setFormData({
+            name: '',
+            email: '',
+            organization: '',
+            inquiryType: '',
+            message: ''
+          });
+        }, 5000);
+      }
+    } catch (error) {
+      setSubmitError(error.response?.data?.detail || 'Failed to submit form. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleNewsletterSubmit = async (e) => {
+    e.preventDefault();
+    const email = e.target.email.value;
+    
+    try {
+      const response = await apiService.subscribeNewsletter(email);
+      if (response.success) {
+        alert('Successfully subscribed to newsletter!');
+        e.target.reset();
+      } else {
+        alert(response.message || 'Email already subscribed');
+      }
+    } catch (error) {
+      alert('Failed to subscribe. Please try again.');
+    }
   };
 
   const handleCallUs = () => {
