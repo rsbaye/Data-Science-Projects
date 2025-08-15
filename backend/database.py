@@ -1,11 +1,18 @@
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
+from dotenv import load_dotenv
+from pathlib import Path
 from models import *
 
+# Load environment variables
+ROOT_DIR = Path(__file__).parent
+load_dotenv(ROOT_DIR / '.env')
+
 # MongoDB connection
-mongo_url = os.environ['MONGO_URL']
+mongo_url = os.environ.get('MONGO_URL', 'mongodb://localhost:27017/')
+db_name = os.environ.get('DB_NAME', 'evidentia_db')
 client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ['DB_NAME']]
+db = client[db_name]
 
 class DatabaseManager:
     def __init__(self):
