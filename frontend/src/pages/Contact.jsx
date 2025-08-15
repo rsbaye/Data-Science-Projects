@@ -151,6 +151,7 @@ const Contact = () => {
                             value={formData.name}
                             onChange={(e) => handleInputChange('name', e.target.value)}
                             placeholder="Your full name"
+                            disabled={isSubmitting}
                           />
                         </div>
                         <div>
@@ -163,6 +164,7 @@ const Contact = () => {
                             value={formData.email}
                             onChange={(e) => handleInputChange('email', e.target.value)}
                             placeholder="your.email@example.com"
+                            disabled={isSubmitting}
                           />
                         </div>
                       </div>
@@ -177,13 +179,18 @@ const Contact = () => {
                             value={formData.organization}
                             onChange={(e) => handleInputChange('organization', e.target.value)}
                             placeholder="Your organization name"
+                            disabled={isSubmitting}
                           />
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
                             Inquiry Type *
                           </label>
-                          <Select value={formData.inquiryType} onValueChange={(value) => handleInputChange('inquiryType', value)}>
+                          <Select 
+                            value={formData.inquiryType} 
+                            onValueChange={(value) => handleInputChange('inquiryType', value)}
+                            disabled={isSubmitting}
+                          >
                             <SelectTrigger>
                               <SelectValue placeholder="Select inquiry type" />
                             </SelectTrigger>
@@ -208,16 +215,33 @@ const Contact = () => {
                           value={formData.message}
                           onChange={(e) => handleInputChange('message', e.target.value)}
                           placeholder="Tell us about your project, research needs, or questions..."
+                          disabled={isSubmitting}
                         />
                       </div>
+
+                      {submitError && (
+                        <div className="bg-red-50 border border-red-200 rounded-md p-4">
+                          <p className="text-red-600 text-sm">{submitError}</p>
+                        </div>
+                      )}
 
                       <Button 
                         type="submit" 
                         size="lg" 
                         className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
+                        disabled={isSubmitting || !formData.name || !formData.email || !formData.inquiryType || !formData.message}
                       >
-                        Send Message
-                        <Send className="ml-2 h-5 w-5" />
+                        {isSubmitting ? (
+                          <>
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                            Sending...
+                          </>
+                        ) : (
+                          <>
+                            Send Message
+                            <Send className="ml-2 h-5 w-5" />
+                          </>
+                        )}
                       </Button>
                     </form>
                   )}
