@@ -3,14 +3,31 @@ import { Link } from 'react-router-dom';
 import { Mail, Phone, MapPin, Linkedin, Twitter, Facebook } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
-import { contactInfo } from '../mock';
+import { apiService } from '../services/api';
 
 const Footer = () => {
-  const handleNewsletterSubmit = (e) => {
+  const contactInfo = {
+    address: "1234 Research Boulevard, Suite 500, Washington, DC 20001",
+    phone: "+1 (555) 123-4567",
+    email: "hello@evidentia.com",
+    hours: "Monday - Friday: 9:00 AM - 6:00 PM EST"
+  };
+
+  const handleNewsletterSubmit = async (e) => {
     e.preventDefault();
     const email = e.target.email.value;
-    alert(`Newsletter subscription for ${email} - Feature coming soon!`);
-    e.target.reset();
+    
+    try {
+      const response = await apiService.subscribeNewsletter(email);
+      if (response.success) {
+        alert('Successfully subscribed to newsletter!');
+      } else {
+        alert(response.message || 'Email already subscribed');
+      }
+      e.target.reset();
+    } catch (error) {
+      alert('Failed to subscribe. Please try again.');
+    }
   };
 
   return (
